@@ -1,2 +1,18 @@
 # Guexit.Infrastructure
 Guexit's infrastructure configuration
+
+## Setup
+
+* Steps to configure Terraform in Azure in [here](https://learn.microsoft.com/en-us/azure/developer/terraform/get-started-cloud-shell-bash?tabs=bash). **TODO: I haven't configured a Service Principal yet, but it's something that must be done [here]**(https://learn.microsoft.com/en-us/azure/developer/terraform/get-started-cloud-shell-bash?tabs=bash#create-a-service-principal)
+
+* Crete a key vault in Azure. **TODO: Create a private connection to the key vault**
+
+* Populate `.tf` files with a similar configuration to [this tutorial](https://learn.microsoft.com/en-us/azure/developer/terraform/deploy-postgresql-flexible-server-database?tabs=azure-cli)
+
+* Install terraform from [here](https://developer.hashicorp.com/terraform/downloads)
+
+* I had to pin azurerm to a version for it to work with database `collation = "en_US.UTF8"`.
+
+* `terraform init --upgrade` & `terraform validate`
+
+* `terraform plan`
