@@ -45,3 +45,9 @@ variable "name_prefix" {
   default     = "postgresqlfs"
   description = "Prefix of the resource name."
 }
+
+variable "env_name" {
+  description = "The environment name."
+  # This is the default. If we want to make it mandatory, then we shouldn't provide it
+  default     = "develop"
+}

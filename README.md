@@ -16,3 +16,5 @@ Guexit's infrastructure configuration
 * `terraform init --upgrade` & `terraform validate`
 
 * `terraform plan`
+
+* `terraform apply -var="env_name=develop"`. It can also be set as an env variable: `export TF_VAR_env_name=develop`

@@ -1,10 +1,5 @@
-resource "random_pet" "name_prefix" {
-  prefix = var.name_prefix
-  length = 1
-}
-
 data "azurerm_resource_group" "rg" {
-  name     = "tryguessit-develop"
+  name     = "tryguessit-${var.env_name}"
 }
 
 resource "random_password" "postgresql-pass" {
@@ -13,7 +8,7 @@ resource "random_password" "postgresql-pass" {
 
 data "azurerm_key_vault" "default" {
   name                = "guexit-postgresql-key"
-  resource_group_name = "tryguessit-develop"
+  resource_group_name = "tryguessit-${var.env_name}"
 }
 
 resource "azurerm_key_vault_secret" "keyvault_postgresql" {
@@ -24,7 +19,7 @@ resource "azurerm_key_vault_secret" "keyvault_postgresql" {
 
 
 resource "azurerm_postgresql_flexible_server" "postgresql-db" {
-  name                   = "postgresql-${random_pet.name_prefix.id}-server"
+  name                   = "postgresql-${var.env_name}-server"
   resource_group_name    = data.azurerm_resource_group.rg.name
   location               = data.azurerm_resource_group.rg.location
   version                = var.postgresql_version
@@ -44,14 +39,14 @@ resource "azurerm_postgresql_flexible_server" "postgresql-db" {
 }
 
 resource "azurerm_virtual_network" "default" {
-  name                = "${random_pet.name_prefix.id}-vnet"
+  name                = "${var.env_name}-vnet"
   location            = data.azurerm_resource_group.rg.location
   resource_group_name = data.azurerm_resource_group.rg.name
   address_space       = ["10.0.0.0/16"]
 }
 
 resource "azurerm_network_security_group" "default" {
-  name                = "${random_pet.name_prefix.id}-nsg"
+  name                = "${var.env_name}-nsg"
   location            = data.azurerm_resource_group.rg.location
   resource_group_name = data.azurerm_resource_group.rg.name
 
@@ -69,7 +64,7 @@ resource "azurerm_network_security_group" "default" {
 }
 
 resource "azurerm_subnet" "default" {
-  name                 = "${random_pet.name_prefix.id}-subnet"
+  name                 = "${var.env_name}-subnet"
   virtual_network_name = azurerm_virtual_network.default.name
   resource_group_name  = data.azurerm_resource_group.rg.name
   address_prefixes     = ["10.0.2.0/24"]
@@ -94,14 +89,14 @@ resource "azurerm_subnet_network_security_group_association" "default" {
 }
 
 resource "azurerm_private_dns_zone" "default" {
-  name                = "${random_pet.name_prefix.id}-pdz.postgres.database.azure.com"
+  name                = "${var.env_name}-pdz.postgres.database.azure.com"
   resource_group_name = data.azurerm_resource_group.rg.name
 
   depends_on = [azurerm_subnet_network_security_group_association.default]
 }
 
 resource "azurerm_private_dns_zone_virtual_network_link" "default" {
-  name                  = "${random_pet.name_prefix.id}-pdzvnetlink.com"
+  name                  = "${var.env_name}-pdzvnetlink.com"
   private_dns_zone_name = azurerm_private_dns_zone.default.name
   virtual_network_id    = azurerm_virtual_network.default.id
   resource_group_name   = data.azurerm_resource_group.rg.name
