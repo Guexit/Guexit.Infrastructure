@@ -1,26 +1,77 @@
 # Guexit.Infrastructure
-Guexit's infrastructure configuration
 
-## Setup
+## Overview
 
-* Steps to configure Terraform in Azure in [here](https://learn.microsoft.com/en-us/azure/developer/terraform/get-started-cloud-shell-bash?tabs=bash). **TODO: I haven't configured a Service Principal yet, but it's something that must be done [here]**(https://learn.microsoft.com/en-us/azure/developer/terraform/get-started-cloud-shell-bash?tabs=bash#create-a-service-principal)
+This repository contains the Terraform configurations for managing the infrastructure of Guexit's services in Azure. It sets up resources such as Azure PostgreSQL Flexible Server, Virtual Network, Subnets, and DNS zones among others.
 
-* Crete a key vault in Azure. **TODO: Create a private connection to the key vault**
+## Prerequisites
 
-* Populate `.tf` files with a similar configuration to [this tutorial](https://learn.microsoft.com/en-us/azure/developer/terraform/deploy-postgresql-flexible-server-database?tabs=azure-cli)
+1. **Azure Subscription**: You need an active Azure subscription to deploy these resources.
 
-* Install terraform from [here](https://developer.hashicorp.com/terraform/downloads)
+2. **Terraform**: Install Terraform from [here](https://developer.hashicorp.com/terraform/downloads).
 
-* I had to pin azurerm to a version for it to work with database `collation = "en_US.UTF8"`.
+3. **Azure CLI**: Install Azure Command-Line Interface (CLI) following [these instructions](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli).
 
-* Install Azure Command-Line Interface (CLI) following [these instructions](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli)
+## Initial Setup
 
-* Log in to Azure using `az login`
+1. **Configure Terraform in Azure**: Follow the steps mentioned [here](https://learn.microsoft.com/en-us/azure/developer/terraform/get-started-cloud-shell-bash?tabs=bash)
+    * **Service Principal**: (TODO: Create a service principal as described [here](https://learn.microsoft.com/en-us/azure/developer/terraform/get-started-cloud-shell-bash?tabs=bash#create-a-service-principal))
 
-* `terraform init --upgrade` & `terraform validate`
+2. **Create Azure Key Vault**: (TODO: Create a key vault in Azure and set up a private connection to it)
 
-* `terraform plan`
+3. **Clone this Repository**:
 
-* `terraform apply -var="env_name=develop"`. It can also be set as an env variable: `export TF_VAR_env_name=develop`. This variable is not mandatory, the default is `develop` but could be set to `staging` or `production`.
+    ```shell
+    git clone https://github.com/your-repo/Guexit.Infrastructure.git
+    cd Guexit.Infrastructure
+    ```
 
-* To destroy the resources, run `terraform destroy -var="env_name=develop"`
+4. **Login to Azure**:
+
+    ```shell
+    az login
+    ```
+
+## Terraform Commands
+
+1. **Initialise Terraform**:
+
+    ```shell
+    terraform init --upgrade
+    ```
+
+2. **Validate the Configuration**:
+
+    ```shell
+    terraform validate
+    ```
+
+3. **Generate and Review Execution Plan**:
+
+    ```shell
+    terraform plan --var="env_name=develop"
+    ```
+
+4. **Apply the Changes**:
+
+    ```shell
+    terraform apply -var="env_name=develop"
+    ```
+
+    * Alternatively, you can set `env_name` as an env variable: `export TF_VAR_env_name=develop`
+
+5. **Destroy the Resources**:
+
+    ```shell
+    terraform destroy -var="env_name=develop"
+    ```
+
+## Configuration Parameters
+
+* `env_name`: Environment name (default is "develop"). It can also be "staging" or "production".
+
+* Additional variables can be set in `variables.tf``.
+
+## Notes
+
+* This configuration pins `azurerm` to a specific version for compatibility with the database `collation = "en_US.UTF8"`.
