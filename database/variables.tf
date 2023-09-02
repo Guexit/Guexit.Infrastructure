@@ -28,16 +28,9 @@ variable "postgresql_geo_redundant_backup" {
   default     = true
 }
 
-variable "postgresql_auto_grow" {
-  type        = bool
-  description = "Specifies whether the PostgreSQL server should automatically grow storage as required."
-  default     = true
-}
-
-variable "storage_profile_postgresql" {
-  type        = bool
-  description = "Specifies whether or not to enable SSL enforcement for PostgreSQL storage."
-  default     = true
+variable "postgresql_sku_name" {
+  description = "The SKU name for PostgreSQL Flexible Server"
+  default     = "GP_Standard_D2s_v3"
 }
 
 variable "name_prefix" {

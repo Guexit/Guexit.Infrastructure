@@ -25,7 +25,7 @@ resource "azurerm_postgresql_flexible_server" "postgresql-db" {
   version                = var.postgresql_version
   delegated_subnet_id    = azurerm_subnet.default.id
   private_dns_zone_id    = azurerm_private_dns_zone.default.id
-  sku_name               = "GP_Standard_D2s_v3"
+  sku_name               = var.postgresql_sku_name
 
   administrator_login    = "postgres"
   administrator_password = azurerm_key_vault_secret.keyvault_postgresql.value
