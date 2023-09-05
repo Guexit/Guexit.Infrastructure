@@ -1,7 +1,7 @@
 variable "postgresql_version" {
   type        = string
   description = "The version of the PostgreSQL server to be deployed."
-  default     = "13"
+  default     = "15.2"
 }
 
 variable "postgresql_storage_mb" {
