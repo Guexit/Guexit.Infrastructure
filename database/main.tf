@@ -2,7 +2,7 @@ data "azurerm_client_config" "current" {}
 
 resource "azurerm_resource_group" "rg" {
   name     = "guexit-${var.env_name}"
-  location = "France South"
+  location = "France Central"
 }
 
 resource "random_password" "postgresql-pass" {
@@ -26,13 +26,14 @@ resource "azurerm_key_vault" "kv" {
       "Get",
       "Purge",
       "Recover",
-      "Update",
-      "GetRotationPolicy",
-      "SetRotationPolicy"
+      "Update"
     ]
 
     secret_permissions = [
       "Set",
+      "Get",
+      "Delete",
+      "Purge"
     ]
   }
 }
@@ -50,28 +51,32 @@ resource "azurerm_postgresql_flexible_server" "postgresql-db" {
   version                = var.postgresql_version
   delegated_subnet_id    = azurerm_subnet.default.id
   private_dns_zone_id    = azurerm_private_dns_zone.default.id
-  sku_name               = var.postgresql_sku_name
+  sku_name               = "B_Standard_B1ms"
 
   administrator_login    = "postgres"
   administrator_password = azurerm_key_vault_secret.keyvault_postgresql.value
-
-  zone                   = var.postgresql_zone
+  
   storage_mb             = var.postgresql_storage_mb
-  backup_retention_days  = var.postgresql_backup_retention_days
-  geo_redundant_backup_enabled = var.postgresql_geo_redundant_backup
   
   depends_on = [azurerm_private_dns_zone_virtual_network_link.default]
 }
 
+resource "azurerm_postgresql_flexible_server_database" "default" {
+  name      = "guexit-${var.env_name}-postgresql-db"
+  server_id = azurerm_postgresql_flexible_server.postgresql-db.id
+  collation = "en_US.utf8"
+  charset   = "utf8"
+}
+
 resource "azurerm_virtual_network" "default" {
-  name                = "${var.env_name}-vnet"
+  name                = "guexit-${var.env_name}-virtual-network"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
   address_space       = ["10.0.0.0/16"]
 }
 
 resource "azurerm_network_security_group" "default" {
-  name                = "${var.env_name}-nsg"
+  name                = "guexit-${var.env_name}-network-security-group"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
 
@@ -85,11 +90,11 @@ resource "azurerm_network_security_group" "default" {
     destination_port_range     = "5432" // PostgreSQL port
     source_address_prefix      = "VirtualNetwork" // Or specific IP ranges
     destination_address_prefix = "*"
-    }
+  }
 }
 
 resource "azurerm_subnet" "default" {
-  name                 = "${var.env_name}-subnet"
+  name                 = "guexit-${var.env_name}-subnet"
   virtual_network_name = azurerm_virtual_network.default.name
   resource_group_name  = azurerm_resource_group.rg.name
   address_prefixes     = ["10.0.2.0/24"]
@@ -114,15 +119,22 @@ resource "azurerm_subnet_network_security_group_association" "default" {
 }
 
 resource "azurerm_private_dns_zone" "default" {
-  name                = "${var.env_name}-pdz.postgres.database.azure.com"
+  name                = "${var.env_name}.postgres.database.azure.com"
   resource_group_name = azurerm_resource_group.rg.name
 
   depends_on = [azurerm_subnet_network_security_group_association.default]
 }
 
 resource "azurerm_private_dns_zone_virtual_network_link" "default" {
-  name                  = "${var.env_name}-pdzvnetlink.com"
+  name                  = "guexit-${var.env_name}-private-dns-zone-virtual-network-link"
   private_dns_zone_name = azurerm_private_dns_zone.default.name
   virtual_network_id    = azurerm_virtual_network.default.id
   resource_group_name   = azurerm_resource_group.rg.name
+}
+
+resource "azurerm_servicebus_namespace" "example" {
+  name                = "guexit-${var.env_name}-service-bus-namespace"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  sku                 = "Standard"
 }

@@ -72,6 +72,10 @@ This repository contains the Terraform configurations for managing the infrastru
 
 * Additional variables can be set in `variables.tf``.
 
+## Documentation and useful resources
+
+* [Official Terraform AruzeRM Documentation](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/postgresql_flexible_server)
+
 ## Notes
 
 * This configuration pins `azurerm` to a specific version for compatibility with the database `collation = "en_US.UTF8"`.
