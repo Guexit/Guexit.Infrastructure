@@ -132,8 +132,8 @@ resource "azurerm_private_dns_zone_virtual_network_link" "default" {
   resource_group_name   = azurerm_resource_group.rg.name
 }
 
-resource "azurerm_servicebus_namespace" "example" {
-  name                = "guexit-${var.env_name}-service-bus-namespace"
+resource "azurerm_servicebus_namespace" "default" {
+  name                = "guexit-${var.env_name}-servicebus-namespace"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
   sku                 = "Standard"
