@@ -62,7 +62,14 @@ resource "azurerm_postgresql_flexible_server" "postgresql-db" {
 }
 
 resource "azurerm_postgresql_flexible_server_database" "default" {
-  name      = "guexit-${var.env_name}-postgresql-db"
+  name      = "guexit-${var.env_name}-identityprovider-db"
+  server_id = azurerm_postgresql_flexible_server.postgresql-db.id
+  collation = "en_US.utf8"
+  charset   = "utf8"
+}
+
+resource "azurerm_postgresql_flexible_server_database" "default" {
+  name      = "guexit-${var.env_name}-game-db"
   server_id = azurerm_postgresql_flexible_server.postgresql-db.id
   collation = "en_US.utf8"
   charset   = "utf8"
