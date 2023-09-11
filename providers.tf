@@ -4,7 +4,7 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "3.70.0"
+      version = "3.72.0"
     }
     random = {
       source  = "hashicorp/random"
@@ -15,5 +15,10 @@ terraform {
 
 
 provider "azurerm" {
-  features {}
+  features {
+    key_vault {
+      purge_soft_deleted_secrets_on_destroy = true
+      recover_soft_deleted_secrets          = true
+    }
+  }
 }
