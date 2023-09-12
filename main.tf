@@ -121,7 +121,7 @@ resource "azurerm_subnet" "container_app_environment" {
   name                 = "guexit-${var.env_name}-container-app-subnet"
   virtual_network_name = azurerm_virtual_network.default.name
   resource_group_name  = azurerm_resource_group.default.name
-  address_prefixes     = ["10.0.2.0/23"]
+  address_prefixes     = ["10.0.4.0/23"]
 }
 
 resource "azurerm_subnet_network_security_group_association" "default" {
