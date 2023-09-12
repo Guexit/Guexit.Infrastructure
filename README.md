@@ -40,19 +40,41 @@ This repository contains the Terraform configurations for managing the infrastru
     terraform init --upgrade
     ```
 
-2. **Validate the Configuration**:
+2. **Create or Select a Workspace**:
+
+    To manage different environments, create a new workspace or select an existing one.
+
+    * Create a new workspace:
+
+    ```shell
+    terraform workspace new develop
+    ```
+
+    * List existing workspaces:
+
+    ```shell
+    terraform workspace list
+    ```
+
+    * Select an existing workspace:
+
+    ```shell
+    terraform workspace select develop
+    ```
+
+3. **Validate the Configuration**:
 
     ```shell
     terraform validate
     ```
 
-3. **Generate and Review Execution Plan**:
+4. **Generate and Review Execution Plan**:
 
     ```shell
     terraform plan --var="env_name=develop"
     ```
 
-4. **Apply the Changes**:
+5. **Apply the Changes**:
 
     ```shell
     terraform apply -var="env_name=develop"
@@ -60,7 +82,7 @@ This repository contains the Terraform configurations for managing the infrastru
 
     * Alternatively, you can set `env_name` as an env variable: `export TF_VAR_env_name=develop`
 
-5. **Destroy the Resources**:
+6. **Destroy the Resources**:
 
     ```shell
     terraform destroy -var="env_name=develop"
