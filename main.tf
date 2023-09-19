@@ -184,3 +184,43 @@ resource "azurerm_container_app_environment" "default" {
   log_analytics_workspace_id = azurerm_log_analytics_workspace.default.id
   infrastructure_subnet_id   = azurerm_subnet.container_app_environment.id
 }
+
+ resource "azurerm_container_app" "game" {
+   name                         = "guexit-${var.env_name}-game"
+   container_app_environment_id = azurerm_container_app_environment.default.id
+   resource_group_name          = azurerm_resource_group.default.name
+   revision_mode                = "Single"
+
+   registry {
+     server = "ghcr.io"
+     username = "pablocom"
+     password_secret_name = "pat"
+   }
+
+   template {
+     min_replicas = 1
+     max_replicas = 1
+     
+     container {
+       name   = "guexit-game"
+       image  = "ghcr.io/guexit/guexit-game:latest"
+       cpu    = 0.25
+       memory = "0.5Gi"
+
+       env {
+         name = "AzureKeyVault__Enabled"
+         value = "true"
+       }
+       
+       env {
+         name = "AzureKeyVault__Uri"
+         value = azurerm_key_vault.kv.vault_uri
+       }
+     }
+   }
+   
+   secret {
+     name  = "pat"
+     value = "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"
+   }
+ }
