@@ -36,7 +36,7 @@ resource "random_password" "postgresql-pass" {
   length = 20
 }
 
-resource "azurerm_key_vault_secret" "postgresql-connection-string" {
+resource "azurerm_key_vault_secret" "db-connection-string" {
   name         = "ConnectionStrings--Guexit-Game-GameDb"
   value        = "User ID=${azurerm_postgresql_flexible_server.postgresql-db-server.administrator_login};Password=${azurerm_postgresql_flexible_server.postgresql-db-server.administrator_password};Host=${azurerm_postgresql_flexible_server.postgresql-db-server.fqdn};Database=${azurerm_postgresql_flexible_server_database.game.name};"
   key_vault_id = azurerm_key_vault.kv.id
@@ -206,21 +206,32 @@ resource "azurerm_container_app_environment" "default" {
        image  = "ghcr.io/guexit/guexit-game:latest"
        cpu    = 0.25
        memory = "0.5Gi"
-
-       env {
-         name = "AzureKeyVault__Enabled"
-         value = "true"
-       }
        
+       env { 
+         name = "ConnectionStrings__Guexit_Game_GameDb" 
+         secret_name = "db-connection-string" 
+       }
+       env { 
+         name = "ConnectionStrings__Guexit_ServiceBus" 
+         secret_name = "service-bus-connection-string" 
+       }
        env {
-         name = "AzureKeyVault__Uri"
-         value = azurerm_key_vault.kv.vault_uri
+         name = "Database__MigrateOnStartup"
+         value = "true"
        }
      }
    }
    
-   secret {
-     name  = "pat"
-     value = "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"
+   secret { 
+     name = "pat" 
+     value = "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" 
+   }
+   secret { 
+     name  = "db-connection-string" 
+     value = azurerm_key_vault_secret.db-connection-string.value 
+   }
+   secret { 
+     name  = "service-bus-connection-string"
+     value = azurerm_key_vault_secret.servicebus-connection-string.value 
    }
  }
