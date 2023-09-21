@@ -25,7 +25,7 @@ resource "azurerm_postgresql_flexible_server" "postgresql-db-server" {
   depends_on = [azurerm_private_dns_zone_virtual_network_link.default]
 }
 
-resource "azurerm_postgresql_flexible_server_database" "identityprovider" {
+resource "azurerm_postgresql_flexible_server_database" "identity-provider" {
   name      = "guexit_identityprovider"
   server_id = azurerm_postgresql_flexible_server.postgresql-db-server.id
   collation = "en_US.utf8"
@@ -205,4 +205,173 @@ resource "azurerm_storage_container" "card_images" {
   name                  = "card-images"
   storage_account_name  = azurerm_storage_account.blob_storage.name
   container_access_type = "private"
+}
+
+resource "azurerm_container_app" "identity-provider" {
+   name                         = "guexit-${var.env_name}-identity-provider"
+   container_app_environment_id = azurerm_container_app_environment.default.id
+   resource_group_name          = azurerm_resource_group.default.name
+   revision_mode                = "Single"
+
+  ingress {
+    target_port = 443
+  }
+  
+   registry {
+     server = "ghcr.io"
+     username = "pablocom"
+     password_secret_name = "pat"
+   }
+
+   template {
+     min_replicas = 1
+     max_replicas = 1
+     
+     container {
+       name   = "guexit-identity-provider"
+       image  = "ghcr.io/guexit/guexit-identityprovider:latest"
+       cpu    = 0.25
+       memory = "0.5Gi"
+       
+       env { 
+         name = "ConnectionStrings__Guexit_IdentityProvider_IdentityUsers" 
+         secret_name = "db-connection-string" 
+       }
+       env { 
+         name = "ConnectionStrings__Guexit_IdentityProvider_IdentityServerOperationalData" 
+         secret_name = "db-connection-string" 
+       }
+       env { 
+         name = "ConnectionStrings__Guexit_ServiceBus" 
+         secret_name = "service-bus-connection-string" 
+       }
+       env {
+         name = "Database__MigrateOnStartup"
+         value = "true"
+       }
+
+       env {
+         name = "Authentication__Google__ClientId"
+         secret_name = "auth-google-client-id"
+       }
+       env {
+         name = "Authentication__Google__ClientSecret"
+         secret_name = "auth-google-client-secret"
+       }
+       env {
+         name = "Authentication__Facebook__ClientId"
+         secret_name = "auth-facebook-client-id"
+       }
+       env {
+         name = "Authentication__Facebook__ClientSecret"
+         value = "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"
+       }
+       
+       env {
+         name = "IdentityServer__Clients__0__ClientSecrets__0__Value"
+         secret_name = "guexit-client-secret" 
+       }
+       env {
+         name = "IdentityServer__Clients__0__RedirectUris__0"
+         value = "${azurerm_container_app.frontend.ingress}/signin-oidc"
+       }
+       env {
+         name = "IdentityServer__Clients__0__AllowedCorsOrigins__0"
+         value = azurerm_container_app.frontend.ingress
+       }
+     }
+   }
+   
+   secret { 
+     name = "pat" 
+     value = "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" 
+   }
+   secret { 
+     name  = "db-connection-string" 
+     value = "User ID=${azurerm_postgresql_flexible_server.postgresql-db-server.administrator_login};Password=${azurerm_postgresql_flexible_server.postgresql-db-server.administrator_password};Host=${azurerm_postgresql_flexible_server.postgresql-db-server.fqdn};Database=${azurerm_postgresql_flexible_server_database.identity-provider.name};"
+   }
+   secret { 
+     name  = "service-bus-connection-string"
+     value = azurerm_servicebus_namespace_authorization_rule.default.primary_connection_string
+   }
+   secret {
+     name  = "auth-google-client-id"
+     value = "231047044910-456svfn90ou310ib43j268ctoif38nrf.apps.googleusercontent.com"
+   }
+   secret {
+     name  = "auth-facebook-client-id"
+     value = "649484549980563"
+   }
+   secret {
+     name  = "auth-facebook-client-secret"
+     value = "de219a23a0688faa5ff03b7afd542193"
+   }
+   secret {
+     name = "guexit-client-secret",
+     value = "K7gNU3sdo+OL0wNhqohWhr3gas0xYv72ol/pe/Unols="
+   }
+}
+
+resource "azurerm_container_app" "frontend" {
+  name                         = "guexit-${var.env_name}-frontend"
+  container_app_environment_id = azurerm_container_app_environment.default.id
+  resource_group_name          = azurerm_resource_group.default.name
+  revision_mode                = "Single"
+
+  ingress {
+    target_port = 443
+  }
+  
+  registry {
+    server = "ghcr.io"
+    username = "pablocom"
+    password_secret_name = "pat"
+  }
+
+  template {
+    min_replicas = 1
+    max_replicas = 1
+
+    container {
+      name   = "guexit-frontend"
+      image  = "ghcr.io/guexit/guexit-frontend:latest"
+      cpu    = 0.25
+      memory = "0.5Gi"
+      
+      env {
+        name = "ConnectionStrings__Guexit_ServiceBus"
+        secret_name = "service-bus-connection-string"
+      }
+      env {
+        name = "Authorization__AuthorityUrl"
+        value = azurerm_container_app.identity-provider.ingress
+      }
+      env {
+        name = "Authorization__ClientId"
+        value = "guexit-bff"
+      }
+      env {
+        name = "Authorization__ClientSecret"
+        value = "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"
+      }
+      // noinspection HttpUrlsUsage, secured internal cluster traffic
+      env {
+        name = "ReverseProxy__Clusters__game__Destinations__destination__Address"
+        value = "http://${azurerm_container_app.game.name}"
+      }
+    }
+  }
+
+  secret {
+    name = "pat"
+    value = "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"
+  }
+  secret {
+    name  = "db-connection-string"
+    value = "User ID=${azurerm_postgresql_flexible_server.postgresql-db-server.administrator_login};Password=${azurerm_postgresql_flexible_server.postgresql-db-server.administrator_password};Host=${azurerm_postgresql_flexible_server.postgresql-db-server.fqdn};Database=${azurerm_postgresql_flexible_server_database.game.name};"
+  }
+  secret {
+    name  = "service-bus-connection-string"
+    value = azurerm_servicebus_namespace_authorization_rule.default.primary_connection_string
+  }
 }
