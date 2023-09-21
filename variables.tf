@@ -4,6 +4,6 @@ variable "env_name" {
 
   validation {
     condition = length(var.env_name) > 0 && length(var.env_name) <= 15
-    error_message = "Environment name length must be less more than 0 and less or equal than 15"
+    error_message = "Environment name length must be more than 0 and less or equal than 15"
   }
 }

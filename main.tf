@@ -5,43 +5,8 @@ resource "azurerm_resource_group" "default" {
   location = "France Central"
 }
 
-resource "azurerm_key_vault" "kv" {
-  name                = "guexit-${var.env_name}-keyvault"
-  location            = azurerm_resource_group.default.location
-  resource_group_name = azurerm_resource_group.default.name
-  tenant_id           = data.azurerm_client_config.current.tenant_id
-  sku_name            = "standard"
-
-  access_policy {
-    tenant_id = data.azurerm_client_config.current.tenant_id
-    object_id = data.azurerm_client_config.current.object_id
-
-    key_permissions = [
-      "Create",
-      "Get",
-    ]
-
-    secret_permissions = [
-      "Set",
-      "Get",
-      "Delete",
-      "Purge",
-      "List",
-      "Recover"
-    ]
-  }
-}
-
 resource "random_password" "postgresql-pass" {
   length = 20
-}
-
-resource "azurerm_key_vault_secret" "db-connection-string" {
-  name         = "ConnectionStrings--Guexit-Game-GameDb"
-  value        = "User ID=${azurerm_postgresql_flexible_server.postgresql-db-server.administrator_login};Password=${azurerm_postgresql_flexible_server.postgresql-db-server.administrator_password};Host=${azurerm_postgresql_flexible_server.postgresql-db-server.fqdn};Database=${azurerm_postgresql_flexible_server_database.game.name};"
-  key_vault_id = azurerm_key_vault.kv.id
-  
-  depends_on = [azurerm_postgresql_flexible_server.postgresql-db-server, azurerm_postgresql_flexible_server_database.game]
 }
 
 resource "azurerm_postgresql_flexible_server" "postgresql-db-server" {
@@ -161,14 +126,6 @@ resource "azurerm_servicebus_namespace_authorization_rule" "default" {
   manage = true
 }
 
-resource "azurerm_key_vault_secret" "servicebus-connection-string" {
-  name         = "ConnectionStrings--Guexit-ServiceBus"
-  value        = azurerm_servicebus_namespace_authorization_rule.default.primary_connection_string
-  key_vault_id = azurerm_key_vault.kv.id
-
-  depends_on = [azurerm_servicebus_namespace_authorization_rule.default]
-}
-
 resource "azurerm_log_analytics_workspace" "default" {
   name                = "guexit-${var.env_name}-log-analytics-workspace"
   location            = azurerm_resource_group.default.location
@@ -185,7 +142,7 @@ resource "azurerm_container_app_environment" "default" {
   infrastructure_subnet_id   = azurerm_subnet.container_app_environment.id
 }
 
- resource "azurerm_container_app" "game" {
+resource "azurerm_container_app" "game" {
    name                         = "guexit-${var.env_name}-game"
    container_app_environment_id = azurerm_container_app_environment.default.id
    resource_group_name          = azurerm_resource_group.default.name
@@ -228,10 +185,10 @@ resource "azurerm_container_app_environment" "default" {
    }
    secret { 
      name  = "db-connection-string" 
-     value = azurerm_key_vault_secret.db-connection-string.value 
+     value = "User ID=${azurerm_postgresql_flexible_server.postgresql-db-server.administrator_login};Password=${azurerm_postgresql_flexible_server.postgresql-db-server.administrator_password};Host=${azurerm_postgresql_flexible_server.postgresql-db-server.fqdn};Database=${azurerm_postgresql_flexible_server_database.game.name};"
    }
    secret { 
      name  = "service-bus-connection-string"
-     value = azurerm_key_vault_secret.servicebus-connection-string.value 
+     value = azurerm_servicebus_namespace_authorization_rule.default.primary_connection_string
    }
  }
