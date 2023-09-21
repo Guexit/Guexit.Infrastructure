@@ -307,7 +307,7 @@ resource "azurerm_container_app" "identity-provider" {
      value = "de219a23a0688faa5ff03b7afd542193"
    }
    secret {
-     name = "guexit-client-secret",
+     name = "guexit-client-secret"
      value = "K7gNU3sdo+OL0wNhqohWhr3gas0xYv72ol/pe/Unols="
    }
 }
