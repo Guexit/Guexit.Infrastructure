@@ -192,3 +192,17 @@ resource "azurerm_container_app" "game" {
      value = azurerm_servicebus_namespace_authorization_rule.default.primary_connection_string
    }
  }
+
+resource "azurerm_storage_account" "blob_storage" {
+  name                     = "guexit${var.env_name}imagesstorage"
+  resource_group_name      = azurerm_resource_group.default.name
+  location                 = azurerm_resource_group.default.location
+  account_tier             = "Standard"
+  account_replication_type = "LRS"
+}
+
+resource "azurerm_storage_container" "card_images" {
+  name                  = "card-images"
+  storage_account_name  = azurerm_storage_account.blob_storage.name
+  container_access_type = "private"
+}
