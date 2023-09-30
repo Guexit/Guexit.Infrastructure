@@ -7,6 +7,7 @@ resource "azurerm_resource_group" "default" {
 
 resource "random_password" "postgresql-pass" {
   length = 20
+  override_special = "_-+.'"
 }
 
 resource "azurerm_postgresql_flexible_server" "postgresql-db-server" {
@@ -212,7 +213,7 @@ resource "azurerm_container_app" "identity-provider" {
    container_app_environment_id = azurerm_container_app_environment.default.id
    resource_group_name          = azurerm_resource_group.default.name
    revision_mode                = "Single"
-
+  
   ingress {
     target_port = 80
     external_enabled = true
@@ -234,7 +235,7 @@ resource "azurerm_container_app" "identity-provider" {
      
      container {
        name   = "guexit-identity-provider"
-       image  = "ghcr.io/guexit/guexit-identityprovider:latest"
+       image  = "ghcr.io/guexit/guexit-identity-provider:latest"
        cpu    = 0.25
        memory = "0.5Gi"
        
@@ -271,11 +272,11 @@ resource "azurerm_container_app" "identity-provider" {
          name = "Authentication__Facebook__ClientSecret"
          value = "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"
        }
-#       
-#       env {
-#         name = "IdentityServer__Clients__0__ClientSecrets__0__Value"
-#         secret_name = "guexit-client-secret" 
-#       }
+       
+       env {
+         name = "IdentityServer__Clients__0__ClientSecrets__0__Value"
+         secret_name = "guexit-client-secret" 
+       }
 #       env {
 #         name = "IdentityServer__Clients__0__RedirectUris__0"
 #         value = "${azurerm_container_app.frontend.ingress}/signin-oidc"
@@ -321,70 +322,71 @@ resource "azurerm_container_app" "identity-provider" {
    }
 }
 
-#resource "azurerm_container_app" "frontend" {
-#  name                         = "guexit-${var.env_name}-frontend"
-#  container_app_environment_id = azurerm_container_app_environment.default.id
-#  resource_group_name          = azurerm_resource_group.default.name
-#  revision_mode                = "Single"
-#
-#  ingress {
-#     target_port = 443
-#     traffic_weight {
-#       percentage = 100
-#       latest_revision = true
-#     }
-#   }
-#  
-#  registry {
-#    server = "ghcr.io"
-#    username = "pablocom"
-#    password_secret_name = "pat"
-#  }
-#
-#  template {
-#    min_replicas = 1
-#    max_replicas = 1
-#
-#    container {
-#      name   = "guexit-frontend"
-#      image  = "ghcr.io/guexit/guexit-frontend:latest"
-#      cpu    = 0.25
-#      memory = "0.5Gi"
-#      
-#      env {
-#        name = "ConnectionStrings__Guexit_ServiceBus"
-#        secret_name = "service-bus-connection-string"
-#      }
-#      env {
-#        name = "Authorization__AuthorityUrl"
-#        value = azurerm_container_app.identity-provider.ingress
-#      }
-#      env {
-#        name = "Authorization__ClientId"
-#        value = "guexit-bff"
-#      }
-#      env {
-#        name = "Authorization__ClientSecret"
-#        value = "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"
-#      }
-#      // noinspection HttpUrlsUsage, secured internal cluster traffic
-#      env {
-#        name = "ReverseProxy__Clusters__game__Destinations__destination__Address"
-#        value = "http://${azurerm_container_app.game.name}"
-#      }
-#    }
-#  }
-#
-#  secret {
-#    name = "pat"
-#    value = "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"
-#  }
-#  secret {
-#    name  = "db-connection-string"
-#    value = "User ID=${azurerm_postgresql_flexible_server.postgresql-db-server.administrator_login};Password=${azurerm_postgresql_flexible_server.postgresql-db-server.administrator_password};Host=${azurerm_postgresql_flexible_server.postgresql-db-server.fqdn};Database=${azurerm_postgresql_flexible_server_database.game.name};"
-#  }
-#  secret {
-#    name  = "service-bus-connection-string"
-#    value = azurerm_servicebus_namespace_authorization_rule.default.primary_connection_string
-#  }
-#}
+resource "azurerm_container_app" "frontend" {
+  name                         = "guexit-${var.env_name}-frontend"
+  container_app_environment_id = azurerm_container_app_environment.default.id
+  resource_group_name          = azurerm_resource_group.default.name
+  revision_mode                = "Single"
+  
+  ingress {
+     target_port = 80
+     external_enabled = true
+     traffic_weight {
+       percentage = 100
+       latest_revision = true
+     }
+   }
+
+  registry {
+    server = "ghcr.io"
+    username = "pablocom"
+    password_secret_name = "pat"
+  }
+
+  template {
+    min_replicas = 1
+    max_replicas = 1
+
+    container {
+      name   = "guexit-frontend"
+      image  = "ghcr.io/guexit/guexit-frontend:latest"
+      cpu    = 0.25
+      memory = "0.5Gi"
+
+      env {
+        name = "ConnectionStrings__Guexit_ServiceBus"
+        secret_name = "service-bus-connection-string"
+      }
+      env {
+        name = "Authorization__AuthorityUrl"
+        value = "https://${azurerm_container_app.identity-provider.name}"
+      }
+      env {
+        name = "Authorization__ClientId"
+        value = "guexit-bff"
+      }
+      env {
+        name = "Authorization__ClientSecret"
+        secret_name = "guexit-client-secret"
+      }
+      // noinspection HttpUrlsUsage, secured internal cluster traffic
+      env {
+        name = "ReverseProxy__Clusters__game__Destinations__destination__Address"
+        value = "http://${azurerm_container_app.game.name}"
+      }
+    }
+  }
+
+  secret {
+    name = "pat"
+    value = "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"
+  }
+  secret {
+    name  = "service-bus-connection-string"
+    value = azurerm_servicebus_namespace_authorization_rule.default.primary_connection_string
+  }
+  secret {
+    name = "guexit-client-secret"
+    value = "K7gNU3sdo+OL0wNhqohWhr3gas0xYv72ol/pe/Unols="
+  }
+}
