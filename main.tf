@@ -390,3 +390,72 @@ resource "azurerm_container_app" "frontend" {
     value = "K7gNU3sdo+OL0wNhqohWhr3gas0xYv72ol/pe/Unols="
   }
 }
+
+# ExpressRoute for connecting to PostgreSQL from a local computer
+resource "azurerm_express_route_circuit" "express_route_circuit" {
+  name                  = "guexit-${var.env_name}-express-route-circuit"
+  resource_group_name   = azurerm_resource_group.default.name
+  location              = azurerm_resource_group.default.location
+  service_provider_name = "Equinix"  // Update this if necessary
+  peering_location      = "Madrid"  // Where the on-premise devices are located
+  bandwidth_in_mbps     = 10
+
+  sku {
+    tier   = "Standard"
+    family = "MeteredData"
+  }
+
+  tags = {
+    environment = var.env_name
+  }
+}
+
+resource "azurerm_virtual_wan" "virtual_wan" {
+  name                = "guexit-${var.env_name}-virtual-wan"
+  resource_group_name = azurerm_resource_group.default.name
+  location            = azurerm_resource_group.default.location
+}
+
+resource "azurerm_virtual_hub" "virtual_hub" {
+  name                = "guexit-${var.env_name}-virtual-hub"
+  resource_group_name = azurerm_resource_group.default.name
+  location            = azurerm_resource_group.default.location
+  virtual_wan_id      = azurerm_virtual_wan.virtual_wan.id
+  address_prefix      = "10.0.1.0/24"  // Update with your address prefix if necessary
+}
+
+resource "azurerm_express_route_gateway" "express_route_gateway" {
+  name                = "guexit-${var.env_name}-express-route-gateway"
+  resource_group_name = azurerm_resource_group.default.name
+  location            = azurerm_resource_group.default.location
+  virtual_hub_id      = azurerm_virtual_hub.virtual_hub.id
+  scale_units         = 1  // Update with your scale units if necessary
+
+  tags = {
+    environment = var.env_name
+  }
+}
+
+resource "azurerm_express_route_circuit_peering" "azure_private_peering" {
+  peering_type                  = "AzurePrivatePeering"
+  express_route_circuit_name    = azurerm_express_route_circuit.express_route_circuit.name
+  resource_group_name           = azurerm_resource_group.default.name
+  peer_asn                      = 100
+  primary_peer_address_prefix   = "123.0.0.0/30"
+  secondary_peer_address_prefix = "123.0.0.4/30"
+  ipv4_enabled                  = true
+  vlan_id                       = 300
+
+  ipv6 {
+    primary_peer_address_prefix   = "2002:db01::/126"
+    secondary_peer_address_prefix = "2003:db01::/126"
+    enabled                       = true
+  }
+}
+
+resource "azurerm_express_route_connection" "express_route_connection" {
+  name                              = "guexit-${var.env_name}-express-route-connection"
+  express_route_circuit_peering_id  = azurerm_express_route_circuit_peering.azure_private_peering.id
+  express_route_gateway_id          = azurerm_express_route_gateway.express_route_gateway.id
+}
+
