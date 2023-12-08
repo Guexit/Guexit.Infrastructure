@@ -155,6 +155,14 @@ resource "azurerm_container_app" "game" {
      password_secret_name = "pat"
    }
 
+   ingress {
+     target_port = 8080
+     traffic_weight {
+       percentage = 100
+       latest_revision = true
+     }
+   }
+
    template {
      min_replicas = 1
      max_replicas = 1
@@ -215,7 +223,7 @@ resource "azurerm_container_app" "identity-provider" {
    revision_mode                = "Single"
   
   ingress {
-    target_port = 80
+    target_port = 8080
     external_enabled = true
     traffic_weight {
       percentage = 100
