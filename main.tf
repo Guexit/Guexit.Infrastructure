@@ -262,6 +262,8 @@ resource "azurerm_container_app" "identity-provider" {
        env {
          name = "Database__MigrateOnStartup"
          value = "true"
+
+         
        }
 
        env {
