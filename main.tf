@@ -190,7 +190,7 @@ resource "azurerm_container_app" "game" {
    
    secret { 
      name = "pat" 
-     value = "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" 
+     value = "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" 
    }
    secret { 
      name  = "db-connection-string" 
@@ -300,7 +300,7 @@ resource "azurerm_container_app" "identity-provider" {
    
    secret { 
      name = "pat" 
-     value = "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" 
+     value = "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" 
    }
    secret { 
      name  = "db-connection-string" 
@@ -389,7 +389,7 @@ resource "azurerm_container_app" "frontend" {
 
   secret {
     name = "pat"
-    value = "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"
+    value = "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"
   }
   secret {
     name  = "service-bus-connection-string"
