@@ -307,7 +307,7 @@ resource "azurerm_container_app" "frontend" {
       }
       env {
         name = "ASPNETCORE_FORWARDEDHEADERS_ENABLED"
-        value = "false" // TODO https://github.com/Guexit/Guexit.Frontend/issues/39
+        value = "true"
       }
       // noinspection HttpUrlsUsage, secured internal cluster traffic
       env {
