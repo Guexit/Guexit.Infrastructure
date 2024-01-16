@@ -78,7 +78,7 @@ resource "azurerm_storage_account" "blob_storage" {
 resource "azurerm_storage_container" "card_images" {
   name                  = "card-images"
   storage_account_name  = azurerm_storage_account.blob_storage.name
-  container_access_type = "private"
+  container_access_type = "blob"
 }
 
 resource "azurerm_container_app" "game" {
