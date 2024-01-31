@@ -123,6 +123,10 @@ resource "azurerm_container_app" "game" {
          name = "Database__MigrateOnStartup"
          value = "true"
        }
+       env {
+         name = "ApplicationInsights__ConnectionString"
+         secret_name = "appinsights-connection-string"
+       }
      }
    }
    
@@ -137,6 +141,10 @@ resource "azurerm_container_app" "game" {
    secret { 
      name  = "service-bus-connection-string"
      value = azurerm_servicebus_namespace_authorization_rule.default.primary_connection_string
+   }
+   secret {
+     name = "appinsights-connection-string"
+     value = azurerm_application_insights.default.connection_string
    }
 }
 
@@ -207,7 +215,6 @@ resource "azurerm_container_app" "identity-provider" {
          name = "Authentication__Facebook__ClientSecret"
          value = "auth-facebook-client-secret"
        }
-       
        env {
          name = "IdentityServer__Clients__0__ClientSecrets__0__Value"
          secret_name = "guexit-client-secret" 
@@ -220,6 +227,10 @@ resource "azurerm_container_app" "identity-provider" {
        env {
          name = "IdentityServer__Clients__0__AllowedCorsOrigins__0"
          value = "empty"
+       }
+       env {
+         name = "ApplicationInsights__ConnectionString"
+         secret_name = "appinsights-connection-string"
        }
      }
    }
@@ -255,6 +266,10 @@ resource "azurerm_container_app" "identity-provider" {
    secret {
      name = "guexit-client-secret"
      value = "empty"
+   }
+   secret {
+     name = "appinsights-connection-string"
+     value = azurerm_application_insights.default.connection_string
    }
 }
 
@@ -314,6 +329,10 @@ resource "azurerm_container_app" "frontend" {
         name = "ReverseProxy__Clusters__game__Destinations__destination__Address"
         value = "http://${azurerm_container_app.game.name}"
       }
+      env {
+        name = "ApplicationInsights__ConnectionString"
+        secret_name = "appinsights-connection-string"
+      }
     }
   }
 
@@ -329,4 +348,16 @@ resource "azurerm_container_app" "frontend" {
     name = "guexit-client-secret"
     value = "empty"
   }
+  secret {
+    name = "appinsights-connection-string"
+    value = azurerm_application_insights.default.connection_string
+  }
+}
+
+resource "azurerm_application_insights" "default" {
+  name                = "guexit-${var.env_name}-appinsights"
+  location            = azurerm_resource_group.default.location
+  resource_group_name = azurerm_resource_group.default.name
+  workspace_id        = azurerm_log_analytics_workspace.default.id
+  application_type    = "web"
 }
