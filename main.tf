@@ -208,12 +208,12 @@ resource "azurerm_container_app" "identity-provider" {
          secret_name = "auth-google-client-secret"
        }
        env {
-         name = "Authentication__Facebook__ClientId"
-         secret_name = "auth-facebook-client-id"
+         name = "Authentication__Discord__ClientId"
+         secret_name = "auth-discord-client-id"
        }
        env {
-         name = "Authentication__Facebook__ClientSecret"
-         value = "auth-facebook-client-secret"
+         name = "Authentication__Discord__ClientSecret"
+         value = "auth-discord-client-secret"
        }
        env {
          name = "IdentityServer__Clients__0__ClientSecrets__0__Value"
@@ -256,11 +256,11 @@ resource "azurerm_container_app" "identity-provider" {
      value = "empty"
    }
    secret {
-     name  = "auth-facebook-client-id"
+     name  = "auth-discord-client-id"
      value = "empty"
    }
    secret {
-     name  = "auth-facebook-client-secret"
+     name  = "auth-discord-client-secret"
      value = "empty"
    }
    secret {
