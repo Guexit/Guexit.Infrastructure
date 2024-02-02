@@ -216,6 +216,14 @@ resource "azurerm_container_app" "identity-provider" {
          value = "auth-discord-client-secret"
        }
        env {
+         name = "Authentication__Twitch__ClientId"
+         secret_name = "auth-twitch-client-id"
+       }
+       env {
+         name = "Authentication__Twitch__ClientSecret"
+         value = "auth-twitch-client-secret"
+       }
+       env {
          name = "IdentityServer__Clients__0__ClientSecrets__0__Value"
          secret_name = "guexit-client-secret" 
        }
@@ -261,6 +269,14 @@ resource "azurerm_container_app" "identity-provider" {
    }
    secret {
      name  = "auth-discord-client-secret"
+     value = "empty"
+   }
+   secret {
+     name  = "auth-twitch-client-id"
+     value = "empty"
+   }
+   secret {
+     name  = "auth-twitch-client-secret"
      value = "empty"
    }
    secret {
