@@ -237,6 +237,10 @@ resource "azurerm_container_app" "identity-provider" {
          value = "empty"
        }
        env {
+        name = "IdentityServer__Clients__0__PostLogoutRedirectUris__0"
+        value = "{Guexit Frontend URL}/signout-callback-oidc"
+       }
+       env {
          name = "ApplicationInsights__ConnectionString"
          secret_name = "appinsights-connection-string"
        }
