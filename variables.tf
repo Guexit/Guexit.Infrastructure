@@ -1,6 +1,7 @@
 variable "env_name" {
   description = "The environment name."
   type = string
+  default = "prod"
 
   validation {
     condition = length(var.env_name) > 0 && length(var.env_name) <= 15
