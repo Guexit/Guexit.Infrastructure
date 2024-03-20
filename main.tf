@@ -14,8 +14,8 @@ resource "azurerm_postgresql_flexible_server" "postgresql-db-server" {
   name                   = "guexit-${var.env_name}-postgresql-server"
   resource_group_name    = azurerm_resource_group.default.name
   location               = azurerm_resource_group.default.location
-  version                = "15"
-  sku_name               = "B_Standard_B1ms"
+  version                = var.az_flexible_server_pg_version
+  sku_name               = var.az_flexible_server_sku
   administrator_login    = "postgres"
   administrator_password = random_password.postgresql-pass.result
   storage_mb             = 32768
@@ -137,7 +137,7 @@ resource "azurerm_container_app" "game" {
   
   secret { 
     name = "pat" 
-    value = "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" 
+    value = var.github_pat
   }
   secret { 
     name  = "db-connection-string" 
@@ -262,7 +262,7 @@ resource "azurerm_container_app" "identity-provider" {
   
   secret { 
     name = "pat" 
-    value = "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"
+    value = var.github_pat
   }
   secret { 
     name  = "db-connection-string" 
@@ -374,7 +374,7 @@ resource "azurerm_container_app" "frontend" {
 
   secret {
     name = "pat"
-    value = "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"
+    value = var.github_pat
   }
   secret {
     name  = "service-bus-connection-string"
