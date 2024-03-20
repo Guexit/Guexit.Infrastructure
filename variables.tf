@@ -13,20 +13,23 @@ variable "azure_subscription_id" {
   description = "Azure subscription id."
   type = string
 }
+
 variable "azure_subscription_tenant_id"{
   description = "Azure subscription tenant id."
   type = string
 }
+
 variable "azure_client_id"{
   description = "Azure subscription client id."
   type = string
 }
+
 variable "azure_subscription_client_secret"{
   description = "Azure subscription client secret."
   type = string
 }
 
-variable "github_pat{
+variable "github_pat"{
   description = "Github PAT to access to Github Registry."
   type = string
 }
