@@ -45,3 +45,45 @@ variable "az_flexible_server_pg_version"{
   type = number
   default = 15
 }
+
+variable "az_container_app_guexit_game_cpu"{
+  description = "The number of CPU cores to allocate to Guexit Game in Container Apps."
+  type = number
+  default = 0.25
+}
+
+variable "az_container_app_guexit_game_memory"{
+  description = "The number of memory to allocate to Guexit Game in Container Apps."
+  type = string
+  default = "0.5Gi"
+}
+
+variable "az_container_app_guexit_identity_provider_cpu"{
+  description = "The number of CPU cores to allocate to Guexit Game in Container Apps."
+  type = number
+  default = 0.25
+}
+
+variable "az_container_app_guexit_identity_provider_memory"{
+  description = "The number of memory to allocate to Guexit Game in Container Apps."
+  type = string
+  default = "0.5Gi"
+}
+
+variable "az_container_app_guexit_frontend_cpu"{
+  description = "The number of CPU cores to allocate to Guexit Game in Container Apps."
+  type = number
+  default = 0.25
+}
+
+variable "az_container_app_guexit_frontend_memory"{
+  description = "The number of memory to allocate to Guexit Game in Container Apps."
+  type = string
+  default = "0.5Gi"
+}
+
+variable "az_application_insights_sampling_rate"{
+  description = "The number of memory to allocate to Guexit Game in Container Apps."
+  type = number
+  default = 100
+}
