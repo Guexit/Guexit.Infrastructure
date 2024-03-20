@@ -157,7 +157,6 @@ resource "azurerm_container_app" "game" {
   }
   lifecycle {
     ignore_changes = [
-      secret,
       ingress, # We cannnot add the custom 
       template[0].container[0].image, # Ignore image tag changes. 
 
