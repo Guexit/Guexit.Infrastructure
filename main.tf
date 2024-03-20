@@ -113,8 +113,8 @@ resource "azurerm_container_app" "game" {
     container {
       name   = "guexit-game"
       image  = "ghcr.io/guexit/guexit-game:1.3.5"
-      cpu    = 0.25
-      memory = "0.5Gi"
+      cpu    = var.az_container_app_guexit_game_cpu
+      memory = var.az_container_app_guexit_game_memory
       
       env { 
         name = "ConnectionStrings__Guexit_Game_GameDb" 
@@ -157,6 +157,7 @@ resource "azurerm_container_app" "game" {
   }
   lifecycle {
     ignore_changes = [
+      secret,
       ingress, # We cannnot add the custom 
       template[0].container[0].image, # Ignore image tag changes. 
 
@@ -192,8 +193,8 @@ resource "azurerm_container_app" "identity-provider" {
     container {
       name   = "guexit-identity-provider"
       image  = "ghcr.io/guexit/guexit-identity-provider:latest"
-      cpu    = 0.25
-      memory = "0.5Gi"
+      cpu    = var.az_container_app_guexit_identity_provider_cpu
+      memory = var.az_container_app_guexit_identity_provider_memory
       env {
         name = "ASPNETCORE_FORWARDEDHEADERS_ENABLED"
         value = "true"
@@ -341,8 +342,8 @@ resource "azurerm_container_app" "frontend" {
     container {
       name   = "guexit-frontend"
       image  = "ghcr.io/guexit/guexit-frontend:latest"
-      cpu    = 0.25
-      memory = "0.5Gi"
+      cpu    = var.az_container_app_guexit_frontend_cpu
+      memory = var.az_container_app_guexit_frontend_memory
       env {
         name = "ASPNETCORE_FORWARDEDHEADERS_ENABLED"
         value = "true"
