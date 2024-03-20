@@ -369,6 +369,10 @@ resource "azurerm_container_app" "frontend" {
         name = "ReverseProxy__Clusters__game__Destinations__destination__Address"
         value = "http://${azurerm_container_app.game.name}"
       }
+      env {
+        name = "ConnectionStrings__ApplicationInsights"
+        value = "InstrumentationKey=832c4a22-1df0-412c-a26d-519a615c8d4f;IngestionEndpoint=https://francecentral-1.in.applicationinsights.azure.com/;LiveEndpoint=https://francecentral.livediagnostics.monitor.azure.com/"
+      }
     }
   }
 
