@@ -407,5 +407,5 @@ resource "azurerm_application_insights" "game-insights" {
   resource_group_name = azurerm_resource_group.default.name
   workspace_id        = azurerm_log_analytics_workspace.default.id
   application_type    = "web"
-  sampling_percentage = 0
+  sampling_percentage = 
 }
