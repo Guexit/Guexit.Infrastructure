@@ -16,6 +16,7 @@ on:
         type: string
       CONTAINER_APP_NAME:
         description: 'Name of the container app'
+        type: string
     secrets:
       AZURE_CREDENTIALS_GUEXIT_PRD:
         description: 'Json file with credentials to connect to Azure'
@@ -41,5 +42,5 @@ jobs:
         uses: azure/container-apps-deploy-action@v1
         with:
           containerAppName: guexit-prod-game
-          resourceGroup: ${{ inputs.AZ_RESOURCE_GROUP }}
+          resourceGroup: ${{ inputs.RESOURCE_GROUP }}
           imageToDeploy: ${{ env.REGISTRY }}/${{ inputs.IMAGE_TO_DEPLOY_NAME }}
