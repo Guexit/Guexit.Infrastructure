@@ -1,0 +1,45 @@
+name: Deploy Container App
+
+env:
+  REGISTRY: ghcr.io/guexit
+
+on:
+  workflow_call:
+    inputs:
+      IMAGE_TO_DEPLOY_NAME:
+        description: 'Name of the image to deploy. E.g. guexit-game:1.17.0'
+        required: true
+        type: string
+      RESOURCE_GROUP:
+        description: 'Azure resource group to deploy the container app'
+        default: 'guexit-prod'
+        type: string
+      CONTAINER_APP_NAME:
+        description: 'Name of the container app'
+    secrets:
+      AZURE_CREDENTIALS_GUEXIT_PRD:
+        description: 'Json file with credentials to connect to Azure'
+        required: true
+
+jobs:
+  deploy-container-app:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Log in to Azure
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS_GUEXIT_PRD }}
+
+      - name: Build and deploy Container App
+        uses: azure/container-apps-deploy-action@v1
+        with:
+          containerAppName: guexit-prod-game
+          resourceGroup: ${{ inputs.AZ_RESOURCE_GROUP }}
+          imageToDeploy: ${{ env.REGISTRY }}/${{ inputs.IMAGE_TO_DEPLOY_NAME }}
