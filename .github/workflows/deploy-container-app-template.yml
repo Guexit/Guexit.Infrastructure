@@ -41,6 +41,6 @@ jobs:
       - name: Build and deploy Container App
         uses: azure/container-apps-deploy-action@v1
         with:
-          containerAppName: guexit-prod-game
+          containerAppName: ${{ inputs.CONTAINER_APP_NAME }}
           resourceGroup: ${{ inputs.RESOURCE_GROUP }}
           imageToDeploy: ${{ env.REGISTRY }}/${{ inputs.IMAGE_TO_DEPLOY_NAME }}
