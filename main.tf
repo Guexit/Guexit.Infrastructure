@@ -73,26 +73,24 @@ resource "azurerm_storage_account" "blob_storage" {
   location                 = azurerm_resource_group.default.location
   account_tier             = "Standard"
   account_replication_type = "LRS"
+
+  cors_rule {
+    allowed_headers = ["*"]
+    allowed_methods = ["GET"]
+    allowed_origins = [
+      "http://localhost:7200",
+      "http://localhost:44458",
+      "https://www.guexit.com"
+    ]
+    exposed_headers = ["*"]
+    max_age_in_seconds = 3600 // how long in seconds the results of a preflight request can be cached
+  }
 }
 
 resource "azurerm_storage_container" "card_images" {
   name                  = "card-images"
   storage_account_name  = azurerm_storage_account.blob_storage.name
   container_access_type = "blob"
-}
-
-resource "azurerm_storage_account_cors_rule" "blob_storage_cors" {
-  storage_account_name = azurerm_storage_account.blob_storage.name
-  services             = ["b"] // Blob service
-  allowed_methods      = ["GET"]
-  allowed_origins      = [
-    "http://localhost:4200",
-    "http://localhost:44458",
-    "https://www.guexit.com"
-  ]
-  allowed_headers      = ["*"]
-  exposed_headers      = ["*"]
-  max_age_in_seconds   = 3600 // how long in seconds the results of a preflight request can be cached
 }
 
 
