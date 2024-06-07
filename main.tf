@@ -81,6 +81,21 @@ resource "azurerm_storage_container" "card_images" {
   container_access_type = "blob"
 }
 
+resource "azurerm_storage_account_cors_rule" "blob_storage_cors" {
+  storage_account_name = azurerm_storage_account.blob_storage.name
+  services             = ["b"] // Blob service
+  allowed_methods      = ["GET"]
+  allowed_origins      = [
+    "http://localhost:4200",
+    "http://localhost:44458",
+    "https://www.guexit.com"
+  ]
+  allowed_headers      = ["*"]
+  exposed_headers      = ["*"]
+  max_age_in_seconds   = 3600 // how long in seconds the results of a preflight request can be cached
+}
+
+
 resource "azurerm_container_app" "game" {
   name                         = "guexit-${var.env_name}-game"
   container_app_environment_id = azurerm_container_app_environment.default.id
