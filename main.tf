@@ -67,12 +67,26 @@ resource "azurerm_container_app_environment" "default" {
   log_analytics_workspace_id = azurerm_log_analytics_workspace.default.id
 }
 
+# Define the Storage Account Resource
 resource "azurerm_storage_account" "blob_storage" {
   name                     = "guexit${var.env_name}imagesstorage"
   resource_group_name      = azurerm_resource_group.default.name
   location                 = azurerm_resource_group.default.location
   account_tier             = "Standard"
   account_replication_type = "LRS"
+  blob_properties {
+    cors_rule {
+        allowed_headers    = ["*"]
+        allowed_methods    = ["GET"]
+        allowed_origins    = [
+          "http://localhost:7200",
+          "http://localhost:44458",
+          "https://www.guexit.com"
+        ]
+        exposed_headers    = ["*"]
+        max_age_in_seconds = 3600
+      }
+  }
 }
 
 resource "azurerm_storage_container" "card_images" {
@@ -80,6 +94,7 @@ resource "azurerm_storage_container" "card_images" {
   storage_account_name  = azurerm_storage_account.blob_storage.name
   container_access_type = "blob"
 }
+
 
 resource "azurerm_container_app" "game" {
   name                         = "guexit-${var.env_name}-game"
