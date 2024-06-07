@@ -73,17 +73,21 @@ resource "azurerm_storage_account" "blob_storage" {
   location                 = azurerm_resource_group.default.location
   account_tier             = "Standard"
   account_replication_type = "LRS"
+}
+
+resource "azurerm_storage_account_blob_service" "blob_service" {
+  storage_account_id = azurerm_storage_account.blob_storage.id
 
   cors_rule {
-    allowed_headers = ["*"]
-    allowed_methods = ["GET"]
-    allowed_origins = [
+    allowed_headers    = ["*"]
+    allowed_methods    = ["GET"]
+    allowed_origins    = [
       "http://localhost:7200",
       "http://localhost:44458",
       "https://www.guexit.com"
     ]
-    exposed_headers = ["*"]
-    max_age_in_seconds = 3600 // how long in seconds the results of a preflight request can be cached
+    exposed_headers    = ["*"]
+    max_age_in_seconds = 3600
   }
 }
 
