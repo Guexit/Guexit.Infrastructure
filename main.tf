@@ -79,9 +79,9 @@ resource "azurerm_storage_account" "blob_storage" {
         allowed_headers    = ["*"]
         allowed_methods    = ["GET"]
         allowed_origins    = [
-          "http://localhost:7200",
-          "http://localhost:44458",
-          "https://www.guexit.com"
+          "https://localhost:7200",
+          "https://localhost:44458",
+          "https://guexit.com"
         ]
         exposed_headers    = ["*"]
         max_age_in_seconds = 3600
