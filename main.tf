@@ -77,7 +77,7 @@ resource "azurerm_storage_account" "blob_storage" {
   blob_properties {
     cors_rule {
         allowed_headers    = ["*"]
-        allowed_methods    = ["GET"]
+        allowed_methods    = ["GET","HEAD"]
         allowed_origins    = [
           "https://localhost:7200",
           "https://localhost:44458",
